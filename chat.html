@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumivara - Chat Room</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="chat">
+  <aside class="sidebar">
+    <div class="logo">Lumivara</div>
+    <div class="profile-card">
+      <div class="avatar" id="sidebarAvatar">L</div>
+      <div>
+        <div class="profile-name" id="sidebarUserName">Learner</div>
+        <div class="profile-meta" id="sidebarUserMeta">Active now</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <a class="nav-link active" href="chat.html">Chat Room</a>
+      <button class="nav-link" id="logoutBtn" type="button">Logout</button>
+    </nav>
+    <div class="room-list">
+      <h3>Rooms</h3>
+      <button class="room active">Focus Room</button>
+      <button class="room">Exam Prep</button>
+      <button class="room">Language Lab</button>
+      <button class="room">STEM Support</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="main-header">
+      <div>
+        <h1>Focus Room</h1>
+        <p class="subtext">Calm collaborative study space</p>
+        <div class="room-meta">
+          <span class="chip">Active: <strong id="activeUserName">You</strong></span>
+          <span class="chip">Focus Mode</span>
+        </div>
+      </div>
+      <div class="xp-mini">
+        <span>Level <strong id="userLevel">1</strong></span>
+        <div class="xp-bar">
+          <div class="xp-fill" id="xpFill"></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="chat-container">
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type a message or /ask, /summary, /explain" />
+        <button class="btn primary" id="sendBtn">Send</button>
+      </div>
+    </section>
+  </main>
+
+  <aside class="users">
+    <h3>Online Learners</h3>
+    <ul class="user-list" id="userList">
+      <li class="user active" data-user="You" data-role="Learner">
+        <span class="user-avatar" id="currentUserAvatar">Y</span>
+        <div class="user-meta">
+          <div class="user-name" id="currentUserName">You</div>
+          <div class="user-status" id="currentUserStatus">Active now</div>
+          <div class="user-role" id="currentUserRole">Learner</div>
+        </div>
+      </li>
+      <li class="user" data-user="Alya" data-role="Mentor">
+        <span class="user-avatar">A</span>
+        <div class="user-meta">
+          <div class="user-name">Alya</div>
+          <div class="user-status">Reviewing notes</div>
+          <div class="user-role">Mentor</div>
+        </div>
+      </li>
+      <li class="user" data-user="Ravi" data-role="Analyst">
+        <span class="user-avatar">R</span>
+        <div class="user-meta">
+          <div class="user-name">Ravi</div>
+          <div class="user-status">Solving problems</div>
+          <div class="user-role">Analyst</div>
+        </div>
+      </li>
+      <li class="user" data-user="Mina" data-role="Calm Focus">
+        <span class="user-avatar">M</span>
+        <div class="user-meta">
+          <div class="user-name">Mina</div>
+          <div class="user-status">Quiet focus</div>
+          <div class="user-role">Calm Focus</div>
+        </div>
+      </li>
+      <li class="user" data-user="Jude" data-role="Sprinter">
+        <span class="user-avatar">J</span>
+        <div class="user-meta">
+          <div class="user-name">Jude</div>
+          <div class="user-status">Taking a break</div>
+          <div class="user-role">Sprinter</div>
+        </div>
+      </li>
+      <li class="user" data-user="Lumi" data-role="AI Guide">
+        <span class="user-avatar">L</span>
+        <div class="user-meta">
+          <div class="user-name">Lumi</div>
+          <div class="user-status">AI helper</div>
+          <div class="user-role">AI Guide</div>
+        </div>
+      </li>
+    </ul>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <span>Lumi is thinking...</span>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/gamification.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

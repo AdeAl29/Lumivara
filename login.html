@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumivara - Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth">
+  <div class="auth-shell">
+    <a class="logo" href="index.html">Lumivara</a>
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p>Sign in to continue your learning journey.</p>
+      <form id="loginForm" class="form">
+        <label>
+          Username
+          <input type="text" id="loginUsername" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input type="password" id="loginPassword" autocomplete="current-password" required />
+        </label>
+        <button class="btn primary" type="submit">Login</button>
+        <div id="loginMessage" class="form-message"></div>
+      </form>
+      <div class="auth-footer">
+        <span>New to Lumivara?</span>
+        <a href="register.html">Create an account</a>
+      </div>
+    </div>
+  </div>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

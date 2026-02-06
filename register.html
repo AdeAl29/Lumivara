@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumivara - Register</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth">
+  <div class="auth-shell">
+    <a class="logo" href="index.html">Lumivara</a>
+    <div class="auth-card">
+      <h1>Create your account</h1>
+      <p>Start a calm, collaborative learning journey.</p>
+      <form id="registerForm" class="form">
+        <label>
+          Username
+          <input type="text" id="registerUsername" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input type="password" id="registerPassword" autocomplete="new-password" required />
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" id="registerConfirm" autocomplete="new-password" required />
+        </label>
+        <button class="btn primary" type="submit">Register</button>
+        <div id="registerMessage" class="form-message"></div>
+      </form>
+      <div class="auth-footer">
+        <span>Already have an account?</span>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+  </div>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
