@@ -2,6 +2,7 @@ const Auth = (() => {
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
   const logoutBtn = document.getElementById("logoutBtn");
+  const resetDemoBtn = document.getElementById("resetDemoBtn");
 
   const showMessage = (element, message, isError = true) => {
     if (!element) return;
@@ -143,6 +144,14 @@ const Auth = (() => {
     if (loginForm) loginForm.addEventListener("submit", handleLogin);
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
     if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+    if (resetDemoBtn) {
+      resetDemoBtn.addEventListener("click", () => {
+        const confirmed = window.confirm("Reset demo data? This will clear local storage.");
+        if (!confirmed) return;
+        Storage.resetAll();
+        window.location.href = "index.html";
+      });
+    }
   };
 
   const init = () => {

@@ -28,6 +28,9 @@ const Storage = (() => {
 
   const getMessages = () => load(KEYS.MESSAGES, []);
   const setMessages = (messages) => save(KEYS.MESSAGES, messages);
+  const resetAll = () => {
+    Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
+  };
 
   return {
     KEYS,
@@ -37,5 +40,6 @@ const Storage = (() => {
     setCurrentUser,
     getMessages,
     setMessages,
+    resetAll,
   };
 })();

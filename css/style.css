@@ -104,6 +104,11 @@ a {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+.btn.small {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
 .btn.primary {
   background: linear-gradient(135deg, var(--primary), var(--accent));
   color: #fff;
@@ -377,6 +382,8 @@ input:focus {
 
 .sidebar-footer {
   margin-top: auto;
+  display: grid;
+  gap: 12px;
 }
 
 .room-list h3,
