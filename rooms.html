@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lumivara - Dashboard</title>
+  <title>Lumivara - Rooms</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body class="dashboard">
+<body class="page rooms">
   <aside class="sidebar">
     <div class="logo">Lumivara</div>
     <div class="profile-card">
@@ -17,8 +17,8 @@
       </div>
     </div>
     <nav class="nav">
-      <a class="nav-link active" href="dashboard.html">Dashboard</a>
-      <a class="nav-link" href="rooms.html">Rooms</a>
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <a class="nav-link active" href="rooms.html">Rooms</a>
       <a class="nav-link" href="chat.html">Chat Room</a>
       <a class="nav-link" href="leaderboard.html">Leaderboard</a>
       <a class="nav-link" href="achievements.html">Achievements</a>
@@ -27,7 +27,7 @@
       <button class="nav-link" id="logoutBtn" type="button">Logout</button>
     </nav>
     <div class="sidebar-footer">
-      <span class="pill">Study Calm</span>
+      <span class="pill">Room Finder</span>
       <button class="btn ghost small" id="resetDemoBtn" type="button">Reset Demo</button>
     </div>
   </aside>
@@ -35,45 +35,43 @@
   <main class="main">
     <header class="main-header">
       <div>
-        <h1 id="welcomeMessage">Welcome, Learner</h1>
-        <p class="subtext">Track your progress, celebrate achievements, and join a room.</p>
-      </div>
-      <div class="xp-card">
-        <div>
-          <span class="label">Level</span>
-          <span class="value" id="userLevel">1</span>
-        </div>
-        <div>
-          <span class="label">XP</span>
-          <span class="value" id="userXp">0</span>
-        </div>
-        <div class="xp-bar">
-          <div class="xp-fill" id="xpFill"></div>
-        </div>
+        <h1>Study Rooms</h1>
+        <p class="subtext">Join a room or create a new space for your learning goals.</p>
       </div>
     </header>
 
     <section class="panel">
       <div class="panel-header">
-        <h2>Your achievements</h2>
-        <span class="chip">Live progress</span>
+        <h2>Available rooms</h2>
+        <span class="chip">Live</span>
       </div>
-      <div id="achievementList" class="achievement-grid"></div>
+      <div id="roomList" class="room-grid"></div>
     </section>
 
-    <section class="panel action-panel">
-      <div>
-        <h2>Enter a study room</h2>
-        <p>Continue the conversation, earn XP, and ask Lumi for help.</p>
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Create a room</h2>
+        <span class="chip">New</span>
       </div>
-      <a class="btn primary" href="chat.html">Enter chat room</a>
+      <form id="roomForm" class="form two-col">
+        <label>
+          Room name
+          <input type="text" id="roomName" required />
+        </label>
+        <label>
+          Topic
+          <input type="text" id="roomTopic" required />
+        </label>
+        <button class="btn primary" type="submit">Create room</button>
+        <div id="roomMessage" class="form-message"></div>
+      </form>
     </section>
   </main>
 
   <div class="toast" id="toast"></div>
 
   <script src="js/storage.js"></script>
-  <script src="js/gamification.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/rooms.js"></script>
 </body>
 </html>

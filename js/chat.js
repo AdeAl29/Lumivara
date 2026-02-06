@@ -4,9 +4,13 @@ const Chat = (() => {
   const chatMessages = document.getElementById("chatMessages");
   const loader = document.getElementById("loader");
   const typingStatus = document.getElementById("currentUserStatus");
+  const activeUserSelect = document.getElementById("activeUserSelect");
+  const addDemoUserBtn = document.getElementById("addDemoUserBtn");
+  const sidebarRooms = document.getElementById("sidebarRooms");
   let typingTimer;
 
   const peers = ["Alya", "Ravi", "Mina", "Jude", "Niko", "Sora", "Isha", "Ken", "Dina", "Tari"];
+  const demoNames = ["Luna", "Kai", "Zara", "Felix", "Nala", "Arlo", "Mira", "Vera", "Theo", "Noah"];
   const personaMap = {
     Alya: "Mentor",
     Ravi: "Analyst",
@@ -521,7 +525,7 @@ const Chat = (() => {
     });
   };
 
-  const schedulePeerReply = (text) => {
+  const schedulePeerReply = (text, roomId) => {
     const topic = findTopicByText(text);
     const responsePool = topic ? topic.peerReplies : fallbackReplies;
     const responder = peers[Math.floor(Math.random() * peers.length)];
@@ -535,7 +539,7 @@ const Chat = (() => {
         text: randomPick(responsePool),
         time: formatTime(),
       };
-      saveMessage(message);
+      saveMessage(roomId, message);
       chatMessages.appendChild(renderMessage(message));
       scrollToBottom();
     }, delay);
@@ -551,14 +555,54 @@ const Chat = (() => {
           text: randomPick(topic ? topic.followups : fallbackReplies),
           time: formatTime(),
         };
-        saveMessage(follow);
+        saveMessage(roomId, follow);
         chatMessages.appendChild(renderMessage(follow));
         scrollToBottom();
       }, secondDelay);
     }
   };
 
-  const generateSeedMessages = (currentUser) => {
+  const getRoomId = () => {
+    const params = new URLSearchParams(window.location.search);
+    const requested = params.get("room");
+    const rooms = Storage.getRooms();
+    if (requested && rooms.some((room) => room.id === requested)) return requested;
+    return rooms[0]?.id || "focus-room";
+  };
+
+  const updateRoomUi = (roomId) => {
+    const rooms = Storage.getRooms();
+    const room = rooms.find((item) => item.id === roomId);
+    if (!room) return;
+    const header = document.querySelector(".main-header h1");
+    const subtext = document.querySelector(".main-header .subtext");
+    if (header) header.textContent = room.name;
+    if (subtext) subtext.textContent = room.topic;
+
+    document.querySelectorAll(".room").forEach((button) => {
+      button.classList.toggle("active", button.dataset.room === roomId);
+    });
+  };
+
+  const renderSidebarRooms = () => {
+    if (!sidebarRooms) return;
+    const rooms = Storage.getRooms();
+    sidebarRooms.innerHTML = rooms
+      .map((room) => `<button class="room" data-room="${room.id}">${room.name}</button>`)
+      .join("");
+  };
+
+  const handleRoomNav = () => {
+    document.querySelectorAll(".room").forEach((button) => {
+      button.addEventListener("click", () => {
+        const roomId = button.dataset.room;
+        if (!roomId) return;
+        window.location.href = `chat.html?room=${roomId}`;
+      });
+    });
+  };
+
+  const generateSeedMessages = (currentUser, roomId) => {
     const messages = [];
     let timestamp = new Date();
     timestamp.setHours(8, 10, 0, 0);
@@ -611,15 +655,15 @@ const Chat = (() => {
       index += 1;
     }
 
-    return messages.slice(0, 820);
+    Storage.setMessages(roomId, messages.slice(0, 820));
   };
 
-  const loadMessages = () => {
+  const loadMessages = (roomId) => {
     if (!chatMessages) return;
-    let messages = Storage.getMessages();
+    let messages = Storage.getMessages(roomId);
     if (!messages || messages.length < 5) {
-      messages = generateSeedMessages(Storage.getCurrentUser() || "You");
-      Storage.setMessages(messages);
+      generateSeedMessages(Storage.getCurrentUser() || "You", roomId);
+      messages = Storage.getMessages(roomId);
     }
 
     chatMessages.innerHTML = "";
@@ -648,13 +692,13 @@ const Chat = (() => {
     return bubble;
   };
 
-  const saveMessage = (message) => {
-    const messages = Storage.getMessages();
+  const saveMessage = (roomId, message) => {
+    const messages = Storage.getMessages(roomId);
     messages.push(message);
-    Storage.setMessages(messages);
+    Storage.setMessages(roomId, messages);
   };
 
-  const handleSend = () => {
+  const handleSend = (roomId) => {
     if (!messageInput) return;
     const text = messageInput.value.trim();
     if (!text) return;
@@ -666,20 +710,20 @@ const Chat = (() => {
       time: formatTime(),
     };
 
-    saveMessage(newMessage);
+    saveMessage(roomId, newMessage);
     chatMessages.appendChild(renderMessage(newMessage));
     messageInput.value = "";
     scrollToBottom();
 
     if (text.startsWith("/")) {
-      handleCommand(text);
+      handleCommand(roomId, text);
     } else {
       Gamification.addXp(10, "message");
-      schedulePeerReply(text);
+      schedulePeerReply(text, roomId);
     }
   };
 
-  const handleCommand = (text) => {
+  const handleCommand = (roomId, text) => {
     const [command, ...rest] = text.slice(1).split(" ");
     const topic = rest.join(" ").trim();
 
@@ -687,13 +731,13 @@ const Chat = (() => {
 
     setTimeout(() => {
       if (loader) loader.classList.remove("show");
-      const response = LumiAI.respond(command, topic, Storage.getMessages());
+      const response = LumiAI.respond(command, topic, Storage.getMessages(roomId));
       const message = {
         author: "Lumi",
         text: response,
         time: formatTime(),
       };
-      saveMessage(message);
+      saveMessage(roomId, message);
       chatMessages.appendChild(renderMessage(message));
       scrollToBottom();
       Gamification.addXp(20, "ai");
@@ -713,23 +757,77 @@ const Chat = (() => {
     }
   };
 
-  const bindEvents = () => {
+  const populateUserSelect = () => {
+    if (!activeUserSelect) return;
+    const users = Storage.getUsers();
+    activeUserSelect.innerHTML = users
+      .map((user) => `<option value="${user.username}">${user.username}</option>`)
+      .join("");
+    const current = Storage.getCurrentUser();
+    if (current) activeUserSelect.value = current;
+  };
+
+  const addDemoUser = () => {
+    const users = Storage.getUsers();
+    const name = demoNames.find((demo) => !users.some((user) => user.username === demo));
+    if (!name) return;
+    users.push({
+      username: name,
+      password: "demo",
+      level: 1,
+      xp: 0,
+      achievements: [],
+    });
+    Storage.setUsers(users);
+    Storage.setCurrentUser(name);
+    populateUserSelect();
+    if (window.Auth && typeof window.Auth.refreshUserUi === "function") {
+      window.Auth.refreshUserUi();
+    }
+  };
+
+  const bindEvents = (roomId) => {
     if (!sendBtn) return;
-    sendBtn.addEventListener("click", handleSend);
+    sendBtn.addEventListener("click", () => handleSend(roomId));
     messageInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        handleSend();
+        handleSend(roomId);
       }
     });
     messageInput.addEventListener("input", handleTyping);
+
+    if (activeUserSelect) {
+      activeUserSelect.addEventListener("change", (event) => {
+        Storage.setCurrentUser(event.target.value);
+        if (window.Auth && typeof window.Auth.refreshUserUi === "function") {
+          window.Auth.refreshUserUi();
+        }
+      });
+    }
+
+    if (addDemoUserBtn) addDemoUserBtn.addEventListener("click", addDemoUser);
+  };
+
+  const bindStorage = (roomId) => {
+    window.addEventListener("storage", (event) => {
+      if (event.key === Storage.KEYS.MESSAGES) {
+        loadMessages(roomId);
+      }
+    });
   };
 
   const init = () => {
     if (!document.body.classList.contains("chat")) return;
+    const roomId = getRoomId();
     cacheUserStatusDefaults();
     updateUserListRole();
-    loadMessages();
-    bindEvents();
+    renderSidebarRooms();
+    updateRoomUi(roomId);
+    handleRoomNav();
+    populateUserSelect();
+    loadMessages(roomId);
+    bindEvents(roomId);
+    bindStorage(roomId);
     handleTyping();
   };
 

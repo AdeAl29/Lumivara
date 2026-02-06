@@ -122,6 +122,14 @@ const Auth = (() => {
     if (currentUserStatus) currentUserStatus.textContent = "Active now";
   };
 
+  const refreshUserUi = () => {
+    const current = Storage.getCurrentUser();
+    if (!current) return;
+    const users = Storage.getUsers();
+    const user = users.find((entry) => entry.username === current);
+    if (user) applyUserUi(user);
+  };
+
   const initDashboard = () => {
     if (!document.body.classList.contains("dashboard")) return;
     const current = Storage.getCurrentUser();
@@ -159,9 +167,14 @@ const Auth = (() => {
     bindEvents();
     initDashboard();
     initChatHeader();
+    const settings = Storage.getSettings ? Storage.getSettings() : null;
+    if (settings) {
+      document.body.classList.toggle("no-animations", !settings.animations);
+      document.body.classList.toggle("compact", settings.compact);
+    }
   };
 
-  return { init };
+  return { init, refreshUserUi };
 })();
 
 document.addEventListener("DOMContentLoaded", Auth.init);

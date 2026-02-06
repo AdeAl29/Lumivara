@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lumivara - Dashboard</title>
+  <title>Lumivara - Profile</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body class="dashboard">
+<body class="page profile">
   <aside class="sidebar">
     <div class="logo">Lumivara</div>
     <div class="profile-card">
@@ -17,17 +17,17 @@
       </div>
     </div>
     <nav class="nav">
-      <a class="nav-link active" href="dashboard.html">Dashboard</a>
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
       <a class="nav-link" href="rooms.html">Rooms</a>
       <a class="nav-link" href="chat.html">Chat Room</a>
       <a class="nav-link" href="leaderboard.html">Leaderboard</a>
       <a class="nav-link" href="achievements.html">Achievements</a>
-      <a class="nav-link" href="profile.html">Profile</a>
+      <a class="nav-link active" href="profile.html">Profile</a>
       <a class="nav-link" href="settings.html">Settings</a>
       <button class="nav-link" id="logoutBtn" type="button">Logout</button>
     </nav>
     <div class="sidebar-footer">
-      <span class="pill">Study Calm</span>
+      <span class="pill">Profile</span>
       <button class="btn ghost small" id="resetDemoBtn" type="button">Reset Demo</button>
     </div>
   </aside>
@@ -35,45 +35,39 @@
   <main class="main">
     <header class="main-header">
       <div>
-        <h1 id="welcomeMessage">Welcome, Learner</h1>
-        <p class="subtext">Track your progress, celebrate achievements, and join a room.</p>
-      </div>
-      <div class="xp-card">
-        <div>
-          <span class="label">Level</span>
-          <span class="value" id="userLevel">1</span>
-        </div>
-        <div>
-          <span class="label">XP</span>
-          <span class="value" id="userXp">0</span>
-        </div>
-        <div class="xp-bar">
-          <div class="xp-fill" id="xpFill"></div>
-        </div>
+        <h1>Profile</h1>
+        <p class="subtext">Update your learning bio and goals.</p>
       </div>
     </header>
 
     <section class="panel">
       <div class="panel-header">
-        <h2>Your achievements</h2>
-        <span class="chip">Live progress</span>
+        <h2>About you</h2>
+        <span class="chip">Editable</span>
       </div>
-      <div id="achievementList" class="achievement-grid"></div>
-    </section>
-
-    <section class="panel action-panel">
-      <div>
-        <h2>Enter a study room</h2>
-        <p>Continue the conversation, earn XP, and ask Lumi for help.</p>
-      </div>
-      <a class="btn primary" href="chat.html">Enter chat room</a>
+      <form id="profileForm" class="form two-col">
+        <label>
+          Bio
+          <input type="text" id="profileBio" placeholder="Short intro" />
+        </label>
+        <label>
+          Focus area
+          <input type="text" id="profileFocus" placeholder="e.g. Calculus, UX, Writing" />
+        </label>
+        <label>
+          Weekly goal
+          <input type="text" id="profileGoal" placeholder="e.g. 5 study sessions" />
+        </label>
+        <button class="btn primary" type="submit">Save profile</button>
+        <div id="profileMessage" class="form-message"></div>
+      </form>
     </section>
   </main>
 
   <div class="toast" id="toast"></div>
 
   <script src="js/storage.js"></script>
-  <script src="js/gamification.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/profile.js"></script>
 </body>
 </html>

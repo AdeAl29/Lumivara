@@ -18,15 +18,17 @@
     </div>
     <nav class="nav">
       <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <a class="nav-link" href="rooms.html">Rooms</a>
       <a class="nav-link active" href="chat.html">Chat Room</a>
+      <a class="nav-link" href="leaderboard.html">Leaderboard</a>
+      <a class="nav-link" href="achievements.html">Achievements</a>
+      <a class="nav-link" href="profile.html">Profile</a>
+      <a class="nav-link" href="settings.html">Settings</a>
       <button class="nav-link" id="logoutBtn" type="button">Logout</button>
     </nav>
     <div class="room-list">
       <h3>Rooms</h3>
-      <button class="room active">Focus Room</button>
-      <button class="room">Exam Prep</button>
-      <button class="room">Language Lab</button>
-      <button class="room">STEM Support</button>
+      <div id="sidebarRooms"></div>
     </div>
     <div class="sidebar-footer">
       <span class="pill">Focus Mode</span>
@@ -43,6 +45,11 @@
           <span class="chip">Active: <strong id="activeUserName">You</strong></span>
           <span class="chip">Focus Mode</span>
         </div>
+      </div>
+      <div class="user-switcher">
+        <label for="activeUserSelect">Active user</label>
+        <select id="activeUserSelect"></select>
+        <button class="btn ghost small" id="addDemoUserBtn" type="button">Add demo user</button>
       </div>
       <div class="xp-mini">
         <span>Level <strong id="userLevel">1</strong></span>
