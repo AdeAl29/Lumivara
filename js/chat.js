@@ -1,3 +1,4 @@
+
 const Chat = (() => {
   const messageInput = document.getElementById("messageInput");
   const sendBtn = document.getElementById("sendBtn");
@@ -7,7 +8,18 @@ const Chat = (() => {
   const activeUserSelect = document.getElementById("activeUserSelect");
   const addDemoUserBtn = document.getElementById("addDemoUserBtn");
   const sidebarRooms = document.getElementById("sidebarRooms");
+  const sidebarDm = document.getElementById("sidebarDm");
+  const replyPreview = document.getElementById("replyPreview");
+  const replyAuthor = document.getElementById("replyAuthor");
+  const replyText = document.getElementById("replyText");
+  const cancelReplyBtn = document.getElementById("cancelReplyBtn");
+  const attachBtn = document.getElementById("attachBtn");
+  const fileInput = document.getElementById("fileInput");
+  const roomTitle = document.getElementById("roomTitle");
+  const roomTopic = document.getElementById("roomTopic");
+  const roomMode = document.getElementById("roomMode");
   let typingTimer;
+  let replyTarget = null;
 
   const peers = ["Alya", "Ravi", "Mina", "Jude", "Niko", "Sora", "Isha", "Ken", "Dina", "Tari"];
   const demoNames = ["Luna", "Kai", "Zara", "Felix", "Nala", "Arlo", "Mira", "Vera", "Theo", "Noah"];
@@ -495,6 +507,8 @@ const Chat = (() => {
   const formatTime = (date = new Date()) =>
     date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+  const makeId = () => `msg_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+
   const findTopicByText = (text) => {
     if (!text) return null;
     const lower = text.toLowerCase();
@@ -524,7 +538,6 @@ const Chat = (() => {
       }
     });
   };
-
   const schedulePeerReply = (text, roomId) => {
     const topic = findTopicByText(text);
     const responsePool = topic ? topic.peerReplies : fallbackReplies;
@@ -535,6 +548,7 @@ const Chat = (() => {
     setTimeout(() => {
       setTyping(responder, false);
       const message = {
+        id: makeId(),
         author: responder,
         text: randomPick(responsePool),
         time: formatTime(),
@@ -551,6 +565,7 @@ const Chat = (() => {
       setTimeout(() => {
         setTyping(secondResponder, false);
         const follow = {
+          id: makeId(),
           author: secondResponder,
           text: randomPick(topic ? topic.followups : fallbackReplies),
           time: formatTime(),
@@ -565,23 +580,37 @@ const Chat = (() => {
   const getRoomId = () => {
     const params = new URLSearchParams(window.location.search);
     const requested = params.get("room");
+    const dmTarget = params.get("dm");
     const rooms = Storage.getRooms();
+    if (dmTarget) return `dm-${dmTarget}`;
     if (requested && rooms.some((room) => room.id === requested)) return requested;
     return rooms[0]?.id || "focus-room";
   };
 
   const updateRoomUi = (roomId) => {
     const rooms = Storage.getRooms();
+    if (roomId.startsWith("dm-")) {
+      const name = roomId.replace("dm-", "");
+      if (roomTitle) roomTitle.textContent = `DM with ${name}`;
+      if (roomTopic) roomTopic.textContent = "Direct message";
+      if (roomMode) roomMode.textContent = "Private";
+      document.querySelectorAll(".room").forEach((button) => button.classList.remove("active"));
+      document.querySelectorAll(".dm-item").forEach((item) => {
+        item.classList.toggle("active", item.dataset.dm === name);
+      });
+      return;
+    }
+
     const room = rooms.find((item) => item.id === roomId);
     if (!room) return;
-    const header = document.querySelector(".main-header h1");
-    const subtext = document.querySelector(".main-header .subtext");
-    if (header) header.textContent = room.name;
-    if (subtext) subtext.textContent = room.topic;
+    if (roomTitle) roomTitle.textContent = room.name;
+    if (roomTopic) roomTopic.textContent = room.topic;
+    if (roomMode) roomMode.textContent = "Focus Mode";
 
     document.querySelectorAll(".room").forEach((button) => {
       button.classList.toggle("active", button.dataset.room === roomId);
     });
+    document.querySelectorAll(".dm-item").forEach((item) => item.classList.remove("active"));
   };
 
   const renderSidebarRooms = () => {
@@ -592,12 +621,36 @@ const Chat = (() => {
       .join("");
   };
 
+  const renderDmList = () => {
+    if (!sidebarDm) return;
+    const current = Storage.getCurrentUser();
+    const list = peers.filter((peer) => peer !== current);
+    sidebarDm.innerHTML = list
+      .map(
+        (name) => `
+        <div class="dm-item" data-dm="${name}">
+          ${name}
+          <span>${personaMap[name] || "Learner"}</span>
+        </div>
+      `
+      )
+      .join("");
+  };
+
   const handleRoomNav = () => {
     document.querySelectorAll(".room").forEach((button) => {
       button.addEventListener("click", () => {
         const roomId = button.dataset.room;
         if (!roomId) return;
         window.location.href = `chat.html?room=${roomId}`;
+      });
+    });
+
+    document.querySelectorAll(".dm-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const dm = item.dataset.dm;
+        if (!dm) return;
+        window.location.href = `chat.html?dm=${dm}`;
       });
     });
   };
@@ -614,6 +667,7 @@ const Chat = (() => {
       const responder = peers[(index + 3) % peers.length];
 
       messages.push({
+        id: makeId(),
         author: asker,
         text: randomPick(topic.questions),
         time: formatTime(timestamp),
@@ -621,6 +675,7 @@ const Chat = (() => {
       timestamp = new Date(timestamp.getTime() + 1000 * 60 * 4);
 
       messages.push({
+        id: makeId(),
         author: responder,
         text: randomPick(topic.human),
         time: formatTime(timestamp),
@@ -628,6 +683,7 @@ const Chat = (() => {
       timestamp = new Date(timestamp.getTime() + 1000 * 60 * 3);
 
       messages.push({
+        id: makeId(),
         author: "Lumi",
         text: randomPick(topic.lumi),
         time: formatTime(timestamp),
@@ -636,6 +692,7 @@ const Chat = (() => {
 
       if (index % 2 === 0) {
         messages.push({
+          id: makeId(),
           author: currentUser,
           text: randomPick(topic.followups),
           time: formatTime(timestamp),
@@ -645,6 +702,7 @@ const Chat = (() => {
 
       if (index % 3 === 0) {
         messages.push({
+          id: makeId(),
           author: responder,
           text: randomPick(topic.peerReplies),
           time: formatTime(timestamp),
@@ -658,6 +716,17 @@ const Chat = (() => {
     Storage.setMessages(roomId, messages.slice(0, 820));
   };
 
+  const ensureIds = (roomId, messages) => {
+    let changed = false;
+    messages.forEach((message) => {
+      if (!message.id) {
+        message.id = makeId();
+        changed = true;
+      }
+    });
+    if (changed) Storage.setMessages(roomId, messages);
+  };
+
   const loadMessages = (roomId) => {
     if (!chatMessages) return;
     let messages = Storage.getMessages(roomId);
@@ -666,6 +735,7 @@ const Chat = (() => {
       messages = Storage.getMessages(roomId);
     }
 
+    ensureIds(roomId, messages);
     chatMessages.innerHTML = "";
     const fragment = document.createDocumentFragment();
     messages.forEach((message, idx) => fragment.appendChild(renderMessage(message, idx)));
@@ -683,12 +753,27 @@ const Chat = (() => {
     const currentUser = Storage.getCurrentUser();
     const role = message.author === "Lumi" ? "lumi" : message.author === currentUser ? "self" : "peer";
     const persona = role === "peer" ? ` (${getPersona(message.author)})` : "";
-    bubble.className = `chat-bubble ${role}`;
+    const mention = currentUser && message.text.includes(`@${currentUser}`);
+    bubble.className = `chat-bubble ${role}${mention ? " mention" : ""}`;
     bubble.style.animationDelay = `${Math.min(index, 10) * 35}ms`;
+
+    const replyMarkup = message.replyTo
+      ? `<div class="reply-snippet">Replying to ${message.replyTo.author}: ${message.replyTo.text}</div>`
+      : "";
+
+    const attachmentMarkup = message.attachment
+      ? `<div class="chat-attachment">?? <span>${message.attachment.name}</span> (${message.attachment.size})</div>`
+      : "";
+
     bubble.innerHTML = `
+      ${replyMarkup}
       <div>${message.text}</div>
+      ${attachmentMarkup}
       <div class="chat-meta">${message.author}${persona} · ${message.time}</div>
+      <button class="btn ghost small" data-reply-id="${message.id}">Reply</button>
     `;
+
+    bubble.querySelector("button").addEventListener("click", () => setReplyTarget(message));
     return bubble;
   };
 
@@ -698,6 +783,20 @@ const Chat = (() => {
     Storage.setMessages(roomId, messages);
   };
 
+  const setReplyTarget = (message) => {
+    replyTarget = message;
+    if (!replyPreview) return;
+    replyPreview.classList.add("show");
+    if (replyAuthor) replyAuthor.textContent = `Replying to ${message.author}`;
+    if (replyText) replyText.textContent = message.text.slice(0, 80);
+  };
+
+  const clearReplyTarget = () => {
+    replyTarget = null;
+    if (!replyPreview) return;
+    replyPreview.classList.remove("show");
+  };
+
   const handleSend = (roomId) => {
     if (!messageInput) return;
     const text = messageInput.value.trim();
@@ -705,14 +804,19 @@ const Chat = (() => {
 
     const user = Storage.getCurrentUser() || "You";
     const newMessage = {
+      id: makeId(),
       author: user,
       text,
       time: formatTime(),
+      replyTo: replyTarget
+        ? { author: replyTarget.author, text: replyTarget.text }
+        : null,
     };
 
     saveMessage(roomId, newMessage);
     chatMessages.appendChild(renderMessage(newMessage));
     messageInput.value = "";
+    clearReplyTarget();
     scrollToBottom();
 
     if (text.startsWith("/")) {
@@ -733,6 +837,7 @@ const Chat = (() => {
       if (loader) loader.classList.remove("show");
       const response = LumiAI.respond(command, topic, Storage.getMessages(roomId));
       const message = {
+        id: makeId(),
         author: "Lumi",
         text: response,
         time: formatTime(),
@@ -781,9 +886,31 @@ const Chat = (() => {
     Storage.setUsers(users);
     Storage.setCurrentUser(name);
     populateUserSelect();
+    renderDmList();
     if (window.Auth && typeof window.Auth.refreshUserUi === "function") {
       window.Auth.refreshUserUi();
     }
+  };
+
+  const handleAttachment = (roomId) => {
+    if (!fileInput) return;
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    const user = Storage.getCurrentUser() || "You";
+    const newMessage = {
+      id: makeId(),
+      author: user,
+      text: `Shared a file: ${file.name}`,
+      time: formatTime(),
+      attachment: {
+        name: file.name,
+        size: `${Math.max(1, Math.round(file.size / 1024))} KB`,
+      },
+    };
+    saveMessage(roomId, newMessage);
+    chatMessages.appendChild(renderMessage(newMessage));
+    scrollToBottom();
+    fileInput.value = "";
   };
 
   const bindEvents = (roomId) => {
@@ -799,6 +926,7 @@ const Chat = (() => {
     if (activeUserSelect) {
       activeUserSelect.addEventListener("change", (event) => {
         Storage.setCurrentUser(event.target.value);
+        renderDmList();
         if (window.Auth && typeof window.Auth.refreshUserUi === "function") {
           window.Auth.refreshUserUi();
         }
@@ -806,6 +934,12 @@ const Chat = (() => {
     }
 
     if (addDemoUserBtn) addDemoUserBtn.addEventListener("click", addDemoUser);
+    if (cancelReplyBtn) cancelReplyBtn.addEventListener("click", clearReplyTarget);
+
+    if (attachBtn && fileInput) {
+      attachBtn.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", () => handleAttachment(roomId));
+    }
   };
 
   const bindStorage = (roomId) => {
@@ -822,6 +956,7 @@ const Chat = (() => {
     cacheUserStatusDefaults();
     updateUserListRole();
     renderSidebarRooms();
+    renderDmList();
     updateRoomUi(roomId);
     handleRoomNav();
     populateUserSelect();

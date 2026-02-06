@@ -30,6 +30,10 @@
       <h3>Rooms</h3>
       <div id="sidebarRooms"></div>
     </div>
+    <div class="room-list">
+      <h3>Direct Messages</h3>
+      <div id="sidebarDm"></div>
+    </div>
     <div class="sidebar-footer">
       <span class="pill">Focus Mode</span>
       <button class="btn ghost small" id="resetDemoBtn" type="button">Reset Demo</button>
@@ -39,11 +43,11 @@
   <main class="main">
     <header class="main-header">
       <div>
-        <h1>Focus Room</h1>
-        <p class="subtext">Calm collaborative study space</p>
+        <h1 id="roomTitle">Focus Room</h1>
+        <p class="subtext" id="roomTopic">Calm collaborative study space</p>
         <div class="room-meta">
           <span class="chip">Active: <strong id="activeUserName">You</strong></span>
-          <span class="chip">Focus Mode</span>
+          <span class="chip" id="roomMode">Focus Mode</span>
         </div>
       </div>
       <div class="user-switcher">
@@ -62,8 +66,19 @@
     <section class="chat-container">
       <div id="chatMessages" class="chat-messages"></div>
       <div class="chat-input">
-        <input type="text" id="messageInput" placeholder="Type a message or /ask, /summary, /explain" />
-        <button class="btn primary" id="sendBtn">Send</button>
+        <div class="reply-preview" id="replyPreview">
+          <div>
+            <strong id="replyAuthor">Replying to</strong>
+            <span id="replyText">Message preview</span>
+          </div>
+          <button id="cancelReplyBtn" type="button">Cancel</button>
+        </div>
+        <div class="input-row">
+          <button class="btn ghost small" id="attachBtn" type="button">Attach</button>
+          <input type="file" id="fileInput" hidden />
+          <input type="text" id="messageInput" placeholder="Type a message or /ask, /summary, /explain" />
+          <button class="btn primary" id="sendBtn">Send</button>
+        </div>
       </div>
     </section>
   </main>
